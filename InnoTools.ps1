@@ -19,7 +19,7 @@ $Form.FormBorderStyle = 'Fixed3D'
 $Form.MinimizeBox = $false
 $Form.MaximizeBox = $false
 $Form.ShowIcon = $false
-$Form.text = "Inno Windowsi Tööriistakast"
+$Form.text = "Inno Windowsi Tööriist"
 $Form.TopMost = $false
 $Form.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#E9E3E2")
 
@@ -742,14 +742,14 @@ $EnableSystemTweaks.Add_Click({
         Set-ItemProperty $WifiSense3  AutoConnectAllowedOEM -Value 0
         
         # Prepares mixed Reality Portal for removal    
-        Write-HostAndTextBox "Seadistan Mixed Reality Portal'i registiväärtuse 0-ks, et seda oleks võimalik eemaldada..."
+        Write-HostAndTextBox "Eemaldan Mixed Reality Portal rakenduse..."
         $Holo = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Holographic"    
         If (Test-Path $Holo) {
             Set-ItemProperty $Holo  FirstRunSucceeded -Value 0 
         }
 
         # Disables scheduled tasks that are considered unnecessary 
-        Write-HostAndTextBox "Eemaldan ebavajalikud Scheduled Task ülesanded..."
+        Write-HostAndTextBox "Eemaldan Scheduled Task ülesanded..."
         Get-ScheduledTask XblGameSaveTask | Disable-ScheduledTask
         Get-ScheduledTask Consolidator | Disable-ScheduledTask
         Get-ScheduledTask UsbCeip | Disable-ScheduledTask
@@ -757,7 +757,7 @@ $EnableSystemTweaks.Add_Click({
         Get-ScheduledTask DmClientOnScenarioDownload | Disable-ScheduledTask
 
         # Stops Cortana from being used as part of your Windows Search Function
-        Write-HostAndTextBox "Eemaldan Cortana Windowsi Otsingufunktsioonist..."
+        Write-HostAndTextBox "Eemaldan Cortana Windowsi otsingufunktsioonist..."
         $Search = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
         If (Test-Path $Search) {
             Set-ItemProperty $Search AllowCortana -Value 0 
@@ -789,7 +789,7 @@ $EnableSystemTweaks.Add_Click({
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
 
         # Enables F8 boot menu options
-        Write-HostAndTextBox"Luban klassikalised F8 alglaadimismenüü suvandid..."
+        Write-HostAndTextBox "Luban klassikalise F8 alglaadimismenüü..."
         bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
 
         # Disables Remote Assistance
@@ -826,7 +826,7 @@ $EnableSystemTweaks.Add_Click({
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 1
 
         # Enables NumLock after startup
-        Write-HostAndTextBox "Lülitan Windowsi käivitamisel sisse NumLocki klaviatuuril..."
+        Write-HostAndTextBox "Lülitan Windowsi käivitamisel sisse NumLock funktsiooni klaviatuuril..."
         If (!(Test-Path "HKU:")) {
             New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
         }
@@ -838,7 +838,7 @@ $EnableSystemTweaks.Add_Click({
         }
 
         # Changes default Explorer view to This PC
-        Write-HostAndTextBox "Muudan Windows Exploreri vaikevaadet..."
+        Write-HostAndTextBox "Parandan Windows Exploreri vaikevaadet..."
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 
         # Hides 3D Objects icon from This PC
@@ -895,99 +895,88 @@ $EnableSystemTweaks.Add_Click({
         Write-HostAndTextBox "Kuvan kõiki faililaiendeid..."
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 
-        # Sets services to Manual 
+        # Sets services to Manual (Does not disable)
         $services = @(
-            "diagnosticshub.standardcollector.service"     # Microsoft (R) Diagnostics Hub Standard Collector Service
-            "DiagTrack"                                    # Diagnostics Tracking Service
-            "DPS"
-            "dmwappushservice"                             # WAP Push Message Routing Service (see known issues)
-            "lfsvc"                                        # Geolocation Service
-            "MapsBroker"                                   # Downloaded Maps Manager
-            "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
-            "RemoteAccess"                                 # Routing and Remote Access
-            "RemoteRegistry"                               # Remote Registry
-            "SharedAccess"                                 # Internet Connection Sharing (ICS)
-            "TrkWks"                                       # Distributed Link Tracking Client
-            #"WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
+            "diagnosticshub.standardcollector.service"      # Microsoft Diagnostics Hub Standard Collector Service
+            "DiagTrack"                                     # Diagnostics Tracking Service
+            "DPS"                                           # Diagnostic Policy Service
+            "dmwappushservice"                              # WAP Push Message Routing Service
+            "lfsvc"                                         # Geolocation Service
+            "MapsBroker"                                    # Downloaded Maps Manager
+            "NetTcpPortSharing"                             # Net.Tcp Port Sharing Service
+            "RemoteAccess"                                  # Routing and Remote Access
+            "RemoteRegistry"                                # Remote Registry
+            "SharedAccess"                                  # Internet Connection Sharing (ICS)
+            "TrkWks"                                        # Distributed Link Tracking Client
+            "WbioSrvc"                                      # Windows Biometric Service (required for Fingerprint reader / facial detection)
             #"WlanSvc"                                      # WLAN AutoConfig
-            "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
+            "WMPNetworkSvc"                                 # Windows Media Player Network Sharing Service
             #"wscsvc"                                       # Windows Security Center Service
-            "WSearch"                                      # Windows Search
-            "XblAuthManager"                               # Xbox Live Auth Manager
-            "XblGameSave"                                  # Xbox Live Game Save Service
-            "XboxNetApiSvc"                                # Xbox Live Networking Service
-            "XboxGipSvc"                                   #Disables Xbox Accessory Management Service
-            "ndu"                                          # Windows Network Data Usage Monitor
-            "WerSvc"                                       #disables windows error reporting
-            #"Spooler"                                      #Disables your printer
-            "Fax"                                          #Disables fax
-            "fhsvc"                                        #Disables fax histroy
-            "gupdate"                                      #Disables google update
-            "gupdatem"                                     #Disable another google update
-            "stisvc"                                       #Disables Windows Image Acquisition (WIA)
-            "AJRouter"                                     #Disables (needed for AllJoyn Router Service)
-            "MSDTC"                                        # Disables Distributed Transaction Coordinator
-            "WpcMonSvc"                                    #Disables Parental Controls
-            "PhoneSvc"                                     #Disables Phone Service(Manages the telephony state on the device)
-            "PrintNotify"                                  #Disables Windows printer notifications and extentions
-            "PcaSvc"                                       #Disables Program Compatibility Assistant Service
-            "WPDBusEnum"                                   #Disables Portable Device Enumerator Service
-            #"LicenseManager"                               #Disable LicenseManager(Windows store may not work properly)
-            "seclogon"                                     #Disables  Secondary Logon(disables other credentials only password will work)
-            "SysMain"                                      #Disables sysmain
-            "lmhosts"                                      #Disables TCP/IP NetBIOS Helper
-            "wisvc"                                        #Disables Windows Insider program(Windows Insider will not work)
-            "FontCache"                                    #Disables Windows font cache
-            "RetailDemo"                                   #Disables RetailDemo whic is often used when showing your device
-            "ALG"                                          # Disables Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
-            #"BFE"                                         #Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
-            #"BrokerInfrastructure"                         #Disables Windows infrastructure service that controls which background tasks can run on the system.
-            "SCardSvr"                                      #Disables Windows smart card
-            "EntAppSvc"                                     #Disables enterprise application management.
-            "BthAvctpSvc"                                   #Disables AVCTP service (if you use  Bluetooth Audio Device or Wireless Headphones. then don't disable this)
-            #"FrameServer"                                   #Disables Windows Camera Frame Server(this allows multiple clients to access video frames from camera devices.)
-            "Browser"                                       #Disables computer browser
-            "BthAvctpSvc"                                   #AVCTP service (This is Audio Video Control Transport Protocol service.)
-            #"BDESVC"                                        #Disables bitlocker
-            "iphlpsvc"                                      #Disables ipv6 but most websites don't use ipv6 they use ipv4     
-            "edgeupdate"                                    # Disables one of edge update service  
-            "MicrosoftEdgeElevationService"                 # Disables one of edge  service 
-            "edgeupdatem"                                   # disbales another one of update service (disables edgeupdatem)                          
-            "SEMgrSvc"                                      #Disables Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
-            #"PNRPsvc"                                      # Disables peer Name Resolution Protocol ( some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
-            #"p2psvc"                                       # Disbales Peer Name Resolution Protocol(nables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)
-            #"p2pimsvc"                                     # Disables Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly.Discord will still work)
-            "PerfHost"                                      #Disables  remote users and 64-bit processes to query performance .
-            "BcastDVRUserService_48486de"                   #Disables GameDVR and Broadcast   is used for Game Recordings and Live Broadcasts
-            "CaptureService_48486de"                        #Disables ptional screen capture functionality for applications that call the Windows.Graphics.Capture API.  
-            "cbdhsvc_48486de"                               #Disables   cbdhsvc_48486de (clipboard service it disables)
-            #"BluetoothUserService_48486de"                  #disbales BluetoothUserService_48486de (The Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.)
-            "WpnService"                                    #Disables WpnService (Push Notifications may not work )
-            #"StorSvc"                                       #Disables StorSvc (usb external hard drive will not be reconised by windows)
-            "RtkBtManServ"                                  #Disables Realtek Bluetooth Device Manager Service
-            "QWAVE"                                         #Disables Quality Windows Audio Video Experience (audio and video might sound worse)
-            #Hp services
-            "HPAppHelperCap"
-            "HPDiagsCap"
-            "HPNetworkCap"
-            "HPSysInfoCap"
-            "HpTouchpointAnalyticsService"
-            #hyper-v services
-            "HvHost"                          
-            "vmickvpexchange"
-            "vmicguestinterface"
-            "vmicshutdown"
-            "vmicheartbeat"
-            "vmicvmsession"
-            "vmicrdv"
-            "vmictimesync" 
-            # Services which cannot be disabled
-            #"WdNisSvc"
+            "WSearch"                                       # Windows Search
+            "XblAuthManager"                                # Xbox Live Auth Manager
+            "XblGameSave"                                   # Xbox Live Game Save Service
+            "XboxNetApiSvc"                                 # Xbox Live Networking Service
+            "XboxGipSvc"                                    # Xbox Accessory Management Service
+            "ndu"                                           # Windows Network Data Usage Monitor
+            "WerSvc"                                        # Windows Error Reporting Service
+            #"Spooler"                                      # Printer Service
+            "Fax"                                           # Fax
+            "fhsvc"                                         # Fax histroy
+            "gupdate"                                       # Google Update Service
+            "gupdatem"                                      # Another Google Update Service
+            "stisvc"                                        # Windows Image Acquisition (WIA)
+            "AJRouter"                                      # DAllJoyn Router Service
+            "MSDTC"                                         # Distributed Transaction Coordinator
+            "WpcMonSvc"                                     # Parental Controls
+            "PhoneSvc"                                      # Phone Service(Manages the telephony state on the device)
+            "PrintNotify"                                   # Windows Printer Notifications and Extentions
+            "PcaSvc"                                        # Program Compatibility Assistant Service
+            "WPDBusEnum"                                    # Portable Device Enumerator Service
+            #"LicenseManager"                               # LicenseManager (Windows store may not work properly)
+            "seclogon"                                      # Secondary Logon (disables other credentials only password will work)
+            "SysMain"                                       # Sysmain
+            "lmhosts"                                       # TCP/IP NetBIOS Helper
+            "wisvc"                                         # Windows Insider Program (Windows Insider will not work)
+            "FontCache"                                     # Windows Font Cache
+            "RetailDemo"                                    # RetailDemo Service
+            "ALG"                                           # Application Layer Gateway Service (Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
+            #"BFE"                                          # Base Filtering Engine (BFE) (service that manages firewall and Internet Protocol security)
+            #"BrokerInfrastructure"                         # DWindows infrastructure service that controls which background tasks can run on the system
+            "SCardSvr"                                      # Windows smart card
+            "EntAppSvc"                                     # Enterprise Application Management Service
+            "BthAvctpSvc"                                   # AVCTP Service (for Bluetooth Audio Device or Wireless Headphones)
+            #"FrameServer"                                  # Windows Camera Frame Server ( allows multiple clients to access video frames from camera devices)
+            "Browser"                                       # Computer browser Service
+            "BthAvctpSvc"                                   # AVCTP Service (Audio Video Control Transport Protocol service)
+            #"BDESVC"                                       # Bitlocker Service
+            "iphlpsvc"                                      # IPv6 Helper Service     
+            "edgeupdate"                                    # Microsoft Edge Update Service  
+            "MicrosoftEdgeElevationService"                 # Microsoft Edge Elevation Service
+            "edgeupdatem"                                   # Another Edge Update Service (disables edgeupdatem)                          
+            "SEMgrSvc"                                      # Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
+            #"PNRPsvc"                                      # Per Name Resolution Protocol (some peer-to-peer and collaborative applications, such as Remote Assistance, may not function)
+            #"p2psvc"                                       # Peer Name Resolution Protocol (Enables multi-party communication using Peer-to-Peer Grouping. If disabled, some applications, such as HomeGroup, may not function)
+            #"p2pimsvc"                                     # Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly)
+            "PerfHost"                                      # Windows Performance Counter DLL Host Service
+            "BcastDVRUserService_48486de"                   # GameDVR and Broadcast (for PC Game Recordings and Live Broadcasts)
+            "CaptureService_48486de"                        # Optional screen capture functionality for applications that call the Windows.Graphics.Capture API
+            "cbdhsvc_48486de"                               # cbdhsvc_48486de (Clipboard Service)
+            #"BluetoothUserService_48486de"                 # Bluetooth User Service (Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session)
+            "WpnService"                                    # Windows Push Notifications System Service (Push Notifications may not work)
+            #"StorSvc"                                      # StorSvc (USB external hard drive will not be reconised by Windows)
+            "RtkBtManServ"                                  # Realtek Bluetooth Device Manager Service
+            "QWAVE"                                         # Quality Windows Audio Video Experience (audio and video might sound worse)
+            "HvHost"                                        # HV Host Service (provides an interface for the Hyper-V hypervisor to provide per-partition performance counters to the host operating system)
+            "vmickvpexchange"                               # Hyper-V Data Exchange Service (provides a mechanism to exchange data between the virtual machine and the operating system running on the physical computer)
+            "vmicguestinterface"                            # Hyper-V Guest Service Interface (provides an interface for the Hyper-V host to interact with specific services running inside the virtual machine)
+            "vmicshutdown"                                  # Hyper-V Guest Shutdown Service (provides a mechanism to shut down the operating system of this virtual machine from the management interfaces on the physical computer)
+            "vmicheartbeat"                                 # Hyper-V Heartbeat Service (monitors the state of this virtual machine by reporting a heartbeat at regular intervals)
+            "vmicvmsession"                                 # Hyper-V PowerShell Direct Service (provides a mechanism to manage virtual machine with PowerShell via VM session without a virtual network)
+            "vmicrdv"                                       # Hyper-V Remote Desktop Virtualization Service (provides a platform for communication between the virtual machine and the operating system running on the physical computer)          
+            "vmictimesync"                                  # Hyper-V Time Synchronization Service
         )
 
         foreach ($service in $services) {
-            # -ErrorAction SilentlyContinue so it doesn't write an error to stdout if a service doesn't exist
-
             Write-HostAndTextBox "Seadistan $service teenuse starditüübi manuaalseks..."
             Get-Service -Name $service -ErrorAction SilentlyContinue | Set-Service -StartupType Manual
         }
