@@ -189,7 +189,7 @@ $Cortana.Font = New-Object System.Drawing.Font('Georgia', 13, [System.Drawing.Fo
 
 $EnableCortana = New-Object system.Windows.Forms.Button
 $EnableCortana.FlatStyle = 'Flat'
-$EnableCortana.text = "Taasta"
+$EnableCortana.text = "Paigalda"
 $EnableCortana.width = 240
 $EnableCortana.height = 30
 $EnableCortana.Anchor = 'top,right,left'
@@ -307,7 +307,7 @@ $Onedrive.ForeColor = [System.Drawing.ColorTranslator]::FromHtml("#000000")
 
 $InstallOnedrive = New-Object system.Windows.Forms.Button
 $InstallOnedrive.FlatStyle = 'Flat'
-$InstallOnedrive.text = "Taasta"
+$InstallOnedrive.text = "Paigalda"
 $InstallOnedrive.width = 240
 $InstallOnedrive.height = 30
 $InstallOnedrive.Anchor = 'top,right,left'
@@ -494,49 +494,49 @@ $RemoveApps.Add_Click({
             "Microsoft.GetHelp"
             "Microsoft.Getstarted"
             "Microsoft.3DBuilder"
-            "Microsoft.549981C3F5F10" #Cortana
+            "Microsoft.549981C3F5F10"                       # Cortana
             "Microsoft.Appconnector"
             "Microsoft.BingFinance"
-            "Microsoft.BingFoodAndDrink" # Food And Drink
-            "Microsoft.BingHealthAndFitness" # Health And Fitness
-            "Microsoft.BingNews" # News
-            "Microsoft.BingSports" # Sports
-            "Microsoft.BingTranslator" # Translator
-            "Microsoft.BingTravel" # Travel
-            "Microsoft.BingWeather" # Weather
+            "Microsoft.BingFoodAndDrink"                    # Food And Drink
+            "Microsoft.BingHealthAndFitness"                # Health And Fitness
+            "Microsoft.BingNews"                            # News
+            "Microsoft.BingSports"                          # Sports
+            "Microsoft.BingTranslator"                      # Translator
+            "Microsoft.BingTravel"                          # Travel
+            "Microsoft.BingWeather"                         # Weather
             "Microsoft.CommsPhone"
             "Microsoft.ConnectivityStore"
             "Microsoft.Messaging"
             "Microsoft.Microsoft3DViewer"
             "Microsoft.MicrosoftOfficeHub"
             "Microsoft.MicrosoftPowerBIForWindows"
-            "Microsoft.MicrosoftSolitaireCollection" # MS Solitaire
+            "Microsoft.MicrosoftSolitaireCollection"        # MS Solitaire
             "Microsoft.MixedReality.Portal"
             "Microsoft.NetworkSpeedTest"
-            "Microsoft.Office.OneNote" # MS Office OneNote
+            "Microsoft.Office.OneNote"                      # MS Office OneNote
             "Microsoft.Office.Sway"
             "Microsoft.OneConnect"
-            "Microsoft.People" # People
-            "Microsoft.MSPaint" # Paint 3D
-            "Microsoft.Print3D" # Print 3D
-            "Microsoft.SkypeApp" # Skype
-            "Microsoft.Todos" # Microsoft To Do
+            "Microsoft.People"                              # People
+            "Microsoft.MSPaint"                             # Paint 3D
+            "Microsoft.Print3D"                             # Print 3D
+            #"Microsoft.SkypeApp"                           # Skype
+            "Microsoft.Todos"                               # Microsoft To Do
             "Microsoft.Wallet"
-            "Microsoft.Whiteboard" # Microsoft Whiteboard
-            "Microsoft.WindowsAlarms" # Alarms
+            "Microsoft.Whiteboard"                          # Microsoft Whiteboard
+            "Microsoft.WindowsAlarms"                       # Alarms
             "microsoft.windowscommunicationsapps"
-            "Microsoft.WindowsFeedbackHub" # Feedback Hub
-            "Microsoft.WindowsMaps" # Maps
+            "Microsoft.WindowsFeedbackHub"                  # Feedback Hub
+            "Microsoft.WindowsMaps"                         # Maps
             "Microsoft.WindowsPhone"
             "Microsoft.WindowsReadingList"
-            "Microsoft.WindowsSoundRecorder" # Windows Sound Recorder
-            "Microsoft.XboxApp" # Xbox Console Companion (Replaced by new App)
-            "Microsoft.YourPhone" # Your Phone
-            "Microsoft.ZuneMusic" # Groove Music / (New) Windows Media Player
-            "Microsoft.ZuneVideo" # Movies & TV
+            "Microsoft.WindowsSoundRecorder"                # Windows Sound Recorder
+            "Microsoft.XboxApp"                             # Xbox Console Companion (Replaced by new App)
+            "Microsoft.YourPhone"                           # Your Phone
+            "Microsoft.ZuneMusic"                           # Groove Music/Windows Media Player
+            "Microsoft.ZuneVideo"                           # Movies & TV
             "EclipseManager"
             "ActiproSoftwareLLC"
-            "AdobeSystemsIncorporated.AdobePhotoshopExpress"
+            "AdobeSystemsIncorporated.AdobePhotoshopExpress"    
             "Duolingo-LearnLanguagesforFree"
             "PandoraMediaInc"
             "CandyCrush"
@@ -1364,90 +1364,86 @@ $EnableTelemetry.Add_Click({
     })
 
 $InstallOnedrive.Add_Click({
-        # Reinstalls Onedrive to Windows
-        Write-HostAndTextBox"Paigaldan süsteemi sisseehitatud Onedrive pilveteenuse tuge, palun oota..."
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
-        %systemroot%\SysWOW64\OneDriveSetup.exe
-        Write-HostAndTextBox "Onedrive edukalt paigaldatud!"
-        [System.Windows.Forms.MessageBox]::Show("Onedrive edukalt paigaldatud!", "Protsess edukas", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        # Installs OneDrive using Winget
+        Write-HostAndTextBox "Paigaldan Windowsisse integreeritud OneDrive pilverakendust, palun oota..."
+        Start-Process -FilePath winget -ArgumentList "install -e --accept-source-agreements --accept-package-agreements --silent Microsoft.OneDrive " -NoNewWindow -Wait
+        $OneDriveKey = 'HKLM:Software\Policies\Microsoft\Windows\OneDrive'
+        If (!(Test-Path $OneDriveKey)) {
+            Mkdir $OneDriveKey | Out-Null
+        }
+        Set-ItemProperty $OneDriveKey -Name DisableFileSyncNGSC -Value 0
+        
+        Write-HostAndTextBox "OneDrive paigaldatud!"
+        [System.Windows.Forms.MessageBox]::Show("OneDrive paigaldatud!", "Protsess edukas", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     })
 
 $RemoveOnedrive.Add_Click({
-        # Removes Onedrive from Windows
-        If (Test-Path "$env:USERPROFILE\OneDrive\*") {
-            Write-HostAndTextBox "Kontrollin lokaalset Onedrive kausta. Juhul kui leian kaustast faile tõstan need töölauale 'OneDriveBackupFiles' kausta..."
-            Start-Sleep 1
-          
-            If (Test-Path "$env:USERPROFILE\Desktop\OneDriveBackupFiles") {
-            }
-            else {
-                If (!(Test-Path "$env:USERPROFILE\Desktop\OneDriveBackupFiles")) {
-                    New-item -Path "$env:USERPROFILE\Desktop" -Name "OneDriveBackupFiles"-ItemType Directory -Force
-                }
-            }
-            Start-Sleep 1
-            Move-Item -Path "$env:USERPROFILE\OneDrive\*" -Destination "$env:USERPROFILE\Desktop\OneDriveBackupFiles" -Force
-            Write-HostAndTextBox "Kõik failid töölauale 'OneDriveBackupFiles' kausta ümber tõstetud..."
-            Start-Sleep 1
-            Write-HostAndTextBox "Jätkan Onedrive'i eemaldamisega..."
-            Start-Sleep 1
-        }
-        Else {
-            Write-HostAndTextBox "OneDrive kaustast faile ei leitud. Jätkan Onedrive'i eemaldamisega..."
-            Start-Sleep 1
-            Write-HostAndTextBox "Eemaldan OneDrive'i kausta, et seda poleks edaspidi võimalik failide hoidmiseks kasutada..."
-            $OneDriveKey = 'HKLM:Software\Policies\Microsoft\Windows\OneDrive'
-            If (!(Test-Path $OneDriveKey)) {
-                Mkdir $OneDriveKey
-                Set-ItemProperty $OneDriveKey -Name OneDrive -Value DisableFileSyncNGSC
-            }
-            Set-ItemProperty $OneDriveKey -Name OneDrive -Value DisableFileSyncNGSC
+        Write-HostAndTextBox "Peatan OneDrive protsessid..."
+        taskkill.exe /F /IM "OneDrive.exe"
+        taskkill.exe /F /IM "explorer.exe"
+
+        Write-HostAndTextBox "Kopeerin OneDrive kausta sisu kasutajakonto kausta..."
+        Start-Process -FilePath robocopy -ArgumentList "$env:USERPROFILE\OneDrive $env:USERPROFILE /e /xj" -NoNewWindow -Wait
+
+        Write-HostAndTextBox "Alustan OneDrive eemaldamaist..."
+        Start-Process -FilePath winget -ArgumentList "uninstall -e --purge --force --silent Microsoft.OneDrive " -NoNewWindow -Wait
+
+        Write-HostAndTextBox "Eemaldan OneDrive jäänukfailid..."
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:localappdata\Microsoft\OneDrive"
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:programdata\Microsoft OneDrive"
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:systemdrive\OneDriveTemp"
+
+        # Checks if directory is empty before removing
+        If ((Get-ChildItem "$env:userprofile\OneDrive" -Recurse | Measure-Object).Count -eq 0) {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:userprofile\OneDrive"
         }
 
-        Write-HostAndTextBox "Alustan Onedrive'i eemaldamist, palun oota..."
-        New-PSDrive  HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
-        $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-        $ExplorerReg1 = "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
-        $ExplorerReg2 = "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
-        Stop-Process -Name "OneDrive*"
-        Start-Sleep 2
-        If (!(Test-Path $onedrive)) {
-            $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-        }
-        Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-        Start-Sleep 2
-        Write-HostAndTextBox "Peatan Windows Explorer protsessi..."
-        Start-Sleep 1
-        taskkill.exe /F /IM explorer.exe
-        Start-Sleep 3
-        Write-HostAndTextBox "Eemaldan Onedrive jäänukfailid kõvakettalt..."
-        If (Test-Path "$env:USERPROFILE\OneDrive") {
-            Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse
-        }
-        If (Test-Path "$env:LOCALAPPDATA\Microsoft\OneDrive") {
-            Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse
-        }
-        If (Test-Path "$env:PROGRAMDATA\Microsoft OneDrive") {
-            Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse
-        }
-        If (Test-Path "$env:SYSTEMDRIVE\OneDriveTemp") {
-            Remove-Item "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse
-        }
-        Write-HostAndTextBox "Eemaldan OneDrive funktsiooni Windows Explorerist..."
-        If (!(Test-Path $ExplorerReg1)) {
-            New-Item $ExplorerReg1
-        }
-        Set-ItemProperty $ExplorerReg1 System.IsPinnedToNameSpaceTree -Value 0 
-        If (!(Test-Path $ExplorerReg2)) {
-            New-Item $ExplorerReg2
-        }
-        Set-ItemProperty $ExplorerReg2 System.IsPinnedToNameSpaceTree -Value 0
+        Write-HostAndTextBox "Eemaldan OneDrive rakenduse Windows Explorerist..."
+        Set-ItemProperty -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Name "System.IsPinnedToNameSpaceTree" -Value 0 -ErrorAction SilentlyContinue
+        Set-ItemProperty -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Name "System.IsPinnedToNameSpaceTree" -Value 0 -ErrorAction SilentlyContinue
+
+        reg load "HKU\Default" "C:\Users\Default\NTUSER.DAT" -ErrorAction SilentlyContinue
+        reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f -ErrorAction SilentlyContinue
+        reg unload "HKU\Default" -ErrorAction SilentlyContinue
+
+        Write-HostAndTextBox "Eemaldan OneDrive Start Menüü kirje..."
+        Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
+
+        Write-HostAndTextBox "Eemaldan OneDrive Scheduled Task ülesande..."
+        Get-ScheduledTask -TaskPath '\\' -TaskName 'OneDrive*' -ea SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+
+        # Adds Shell folders restoring default locations
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"AppData\" -Value \"$env:userprofile\\AppData\\Roaming\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Cache\" -Value \"$env:userprofile\\AppData\\Local\\Microsoft\\Windows\\INetCache\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Cookies\" -Value \"$env:userprofile\\AppData\\Local\\Microsoft\\Windows\\INetCookies\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Favorites\" -Value \"$env:userprofile\\Favorites\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"History\" -Value \"$env:userprofile\\AppData\\Local\\Microsoft\\Windows\\History\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Local AppData\" -Value \"$env:userprofile\\AppData\\Local\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"My Music\" -Value \"$env:userprofile\\Music\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"My Video\" -Value \"$env:userprofile\\Videos\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"NetHood\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Network Shortcuts\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"PrintHood\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Printer Shortcuts\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Programs\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Recent\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Recent\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"SendTo\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\SendTo\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Start Menu\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Startup\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Templates\" -Value \"$env:userprofile\\AppData\\Roaming\\Microsoft\\Windows\\Templates\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"{374DE290-123F-4565-9164-39C4925E467B}\" -Value \"$env:userprofile\\Downloads\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Desktop\" -Value \"$env:userprofile\\Desktop\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"My Pictures\" -Value \"$env:userprofile\\Pictures\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"Personal\" -Value \"$env:userprofile\\Documents\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"{F42EE2D3-909F-4907-8871-4C22FC0BF756}\" -Value \"$env:userprofile\\Documents\" -Type ExpandString
+        Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\" -Name \"{0DDD015D-B06C-45D5-8C4C-F59713854639}\" -Value \"$env:userprofile\\Pictures\" -Type ExpandString
+
         Write-HostAndTextBox "Taaskäivitan Windows Exploreri..."
-        Start-Process explorer.exe -NoNewWindow
+        Start-Process "explorer.exe"
 
+        Write-HostAndTextBox "Varundage OneDrive kausta sisu ja kustutage kaust!"
+        Start-Sleep 5
         Write-HostAndTextBox "OneDrive eemaldatud!"
-        [System.Windows.Forms.MessageBox]::Show("Onedrive eemaldatud!", "Protsess edukas", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        Remove-item env:OneDrive
+        [System.Windows.Forms.MessageBox]::Show("OneDrive eemaldatud!", "Protsess edukas", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        Remove-Item env:OneDrive
     })
 
 $DefaultUpdateSettings.Add_Click({
