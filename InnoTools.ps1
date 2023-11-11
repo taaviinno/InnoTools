@@ -8,6 +8,18 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Exit
 }
 
+# Checks if Winget is installed
+if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe) {
+    'Winget on juba paigaldatud...'
+}  
+else {
+    # Installis Winget from the Microsoft Store 
+    Write-HostAndTextBox "Ei leidnud Winget Package Manageri, alustan paigaldamist..."
+    Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
+    $nid = (Get-Process AppInstaller).Id
+    Wait-Process -Id $nid
+}
+
 #Creating form for the script
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
@@ -456,6 +468,8 @@ $UserAccountControlPanel.controls.AddRange(@($UserAccountControlLevel, $UACNotif
 $OtherChangesPanel.controls.AddRange(@($OtherFixes, $WindowsRestoration, $StartDiskCleanup, $FixHardDisk, $FixSystemFiles))
 $ConsoleOutputTextBoxPanel.controls.AddRange(@($ConsoleOutputTextBox))
 
+Get-AppxPackage Microsoft.DesktopAppInstaller | Foreach-Object { Add-AppxPackage -DisableDevelopmentMode -Register $_.InstallLocation\AppXManifest.xml }
+
 # Redirects the console output to the TextBox
 [console]::SetOut([System.IO.StreamWriter]::new($ConsoleOutputTextBox, $true))
 
@@ -550,6 +564,13 @@ $RemoveApps.Add_Click({
             "Royal Revolt"
             "Sway"
             "Dolby"
+            "Microsoft.XboxSpeechToTextOverlay"
+            "Microsoft.XboxIdentityProvider"
+            "Microsoft.XboxGamingOverlay"
+            "Microsoft.XboxGameOverlay"
+            "Microsoft.XboxApp"
+            "Microsoft.Xbox.TCUI"
+            "SpotifyAB.SpotifyMusic"
         )
 
         Write-HostAndTextBox "Eemaldan kõik prügivara äpid, palun oota..."
@@ -1383,7 +1404,12 @@ $RemoveOnedrive.Add_Click({
         taskkill.exe /F /IM "explorer.exe"
 
         Write-HostAndTextBox "Kopeerin OneDrive kausta sisu kasutajakonto kausta..."
-        Start-Process -FilePath robocopy -ArgumentList "$env:USERPROFILE\OneDrive $env:USERPROFILE /e /xj" -NoNewWindow -Wait
+        $OneDrivePath = "$env:USERPROFILE\OneDrive"
+        $BackupPath = "$env:USERPROFILE\OneDriveBackup"
+        if (-not (Test-Path -Path $BackupPath -PathType Container)) {
+            New-Item -ItemType Directory -Path $BackupPath | Out-Null
+        }
+        Copy-Item -Path "$OneDrivePath\*" -Destination $BackupPath -Recurse -Force
 
         Write-HostAndTextBox "Alustan OneDrive eemaldamaist..."
         Start-Process -FilePath winget -ArgumentList "uninstall -e --purge --force --silent Microsoft.OneDrive " -NoNewWindow -Wait
@@ -1401,10 +1427,13 @@ $RemoveOnedrive.Add_Click({
         Write-HostAndTextBox "Eemaldan OneDrive rakenduse Windows Explorerist..."
         Set-ItemProperty -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Name "System.IsPinnedToNameSpaceTree" -Value 0 -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Name "System.IsPinnedToNameSpaceTree" -Value 0 -ErrorAction SilentlyContinue
-
-        reg load "HKU\Default" "C:\Users\Default\NTUSER.DAT" -ErrorAction SilentlyContinue
-        reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f -ErrorAction SilentlyContinue
-        reg unload "HKU\Default" -ErrorAction SilentlyContinue
+       
+        $HivePath = "C:\Users\Default\NTUSER.DAT"
+        reg load "HKLM\TempHive" $HivePath
+        $KeyPath = "HKLM\TempHive\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" 
+        $ValueName = "OneDriveSetup" 
+        reg delete $KeyPath /v $ValueName /f
+        reg unload "HKLM\TempHive"
 
         Write-HostAndTextBox "Eemaldan OneDrive Start Menüü kirje..."
         Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
@@ -1443,7 +1472,6 @@ $RemoveOnedrive.Add_Click({
         Start-Sleep 5
         Write-HostAndTextBox "OneDrive eemaldatud!"
         [System.Windows.Forms.MessageBox]::Show("OneDrive eemaldatud!", "Protsess edukas", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        Remove-Item env:OneDrive
     })
 
 $DefaultUpdateSettings.Add_Click({
@@ -1492,7 +1520,7 @@ $SecurityUpdatesOnly.Add_Click({
     })
 
 $UACNotifyWhenAppsMakeChanges.Add_Click({
-        # Sets UAC level to 'Notify me when apps try to make changes'
+        # Sets UAC level to 'Notify me when apps try to make changes
         Write-HostAndTextBox "Määran kasutajakonto kontrolli (UAC) taseme, kus teavitatakse kui äpid teevad süsteemis muudatusi..."
         start-process powershell -verb runas {
             Set-ItemProperty -Path REGISTRY::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name ConsentPromptBehaviorAdmin -Value 5
@@ -1514,7 +1542,7 @@ $UACNeverNotify.Add_Click({
 $FixHardDisk.Add_Click({
         # Starts Check Disk tool
         Write-HostAndTextBox "Käivitan kõvaketta failisüsteemi kontrolli utiliidi..."
-        Write-HostAndTextBox "Protsessi käivitamiseks järgige ekraanil olevaid juhiseid!"
+        Write-HostAndTextBox "Protsessi alustamiseks järgige ekraanil olevaid juhiseid!"
         Start-Process -FilePath "cmd.exe" -ArgumentList "/c chkdsk /f /r /x"
     })
 
